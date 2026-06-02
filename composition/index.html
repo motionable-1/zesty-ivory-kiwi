@@ -3,13 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hyperframes Composition</title>
+  <title>iMessage Notification Reveal</title>
+  
+  <!-- Import Lato font from Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet">
+
   <style>
     :root {
       color-scheme: light;
-      font-family: Inter, sans-serif;
+      font-family: 'Lato', sans-serif;
       background: transparent;
-      color: #18161d;
+      color: #000000;
       font-kerning: normal;
       text-rendering: geometricPrecision;
       -webkit-font-smoothing: antialiased;
@@ -26,133 +32,129 @@
       height: 100%;
       margin: 0;
       overflow: hidden;
-      background: #fbfaf7;
+      background: #ffffff;
     }
 
     #stage {
       position: relative;
-      width: 1920px;
-      height: 1080px;
+      width: 1080px;
+      height: 312px;
       overflow: hidden;
-      background:
-        radial-gradient(circle at 72% 16%, rgb(169 139 255 / 0.24), transparent 30%),
-        radial-gradient(circle at 22% 80%, rgb(255 255 255 / 0.98), transparent 34%),
-        linear-gradient(180deg, #fbfaf7 0%, #f7f4fb 100%);
+      background: #ffffff;
     }
 
-    .preview-pending-motion {
+    #notification-clip {
       position: absolute;
       inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
-      padding-left: 220px;
+      width: 1080px;
+      height: 312px;
       overflow: hidden;
-      transform: translate3d(0, 0, 0);
-      backface-visibility: hidden;
     }
 
-    .preview-pending-motion::before {
+    .notification-group {
       position: absolute;
-      inset: 0;
-      pointer-events: none;
-      content: "";
-      background:
-        linear-gradient(90deg, rgb(251 250 247 / 0.94) 0%, rgb(251 250 247 / 0.78) 42%, transparent 78%),
-        linear-gradient(180deg, rgb(255 255 255 / 0.72), transparent 48%);
-    }
-
-    .preview-pending-grid {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      opacity: 0.72;
-      background-image:
-        linear-gradient(90deg, rgb(110 99 255 / 0.08) 1px, transparent 1px),
-        linear-gradient(180deg, rgb(110 99 255 / 0.08) 1px, transparent 1px);
-      background-size: 72px 72px;
-      mask-image: radial-gradient(ellipse at center, black 0%, transparent 72%);
-    }
-
-    .preview-pending-content {
-      position: relative;
-      z-index: 2;
-      width: 620px;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      padding: 56px;
-      border: 1px solid #e7e3ee;
-      border-radius: 8px;
-      background: rgb(255 255 255 / 0.84);
-      box-shadow:
-        0 34px 90px rgb(24 22 29 / 0.12),
-        0 10px 28px rgb(24 22 29 / 0.06),
-        inset 0 0 0 1px rgb(255 255 255 / 0.72);
-      backdrop-filter: blur(18px);
+      left: 60px;
+      top: 60px;
+      width: 960px;
+      height: 192px;
+      transform-style: preserve-3d;
       will-change: transform, opacity;
+      opacity: 0; /* Animated */
     }
 
-    .preview-pending-status {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      padding: 9px 12px;
-      border: 1px solid #d7c9ff;
-      border-radius: 999px;
-      background: #efe8ff;
-      color: #5d3fd3;
-      font-size: 15px;
+    .notification-background {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 960px;
+      height: 192px;
+      border-radius: 56px;
+      background-color: rgba(230, 230, 230, 0.9);
+      /* Premium iOS glass effect and shadow */
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05), 0 1px 4px rgba(0, 0, 0, 0.03);
+    }
+
+    .icon {
+      position: absolute;
+      left: 36px;
+      top: 36px;
+      width: 120px;
+      height: 120px;
+      border-radius: 12px;
+      will-change: transform;
+      transform: scale(0.5); /* Animated */
+    }
+
+    .text-container {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .title {
+      position: absolute;
+      left: 192px;
+      top: 40px;
+      width: 600px;
+      height: 56px;
+      color: #000000;
       font-weight: 700;
-      letter-spacing: 0.04em;
-      line-height: 1;
-      text-transform: uppercase;
-    }
-
-    .preview-pending-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 999px;
-      background: #6e63ff;
-      box-shadow: 0 0 24px rgb(110 99 255 / 0.5);
-    }
-
-    .preview-pending-title {
-      max-width: 560px;
-      margin-top: 24px;
-      color: #050505;
-      font-size: 58px;
-      font-weight: 760;
-      letter-spacing: 0;
-      line-height: 0.98;
-    }
-
-    .preview-pending-subtitle {
-      max-width: 430px;
-      margin-top: 14px;
-      color: #6f6a78;
-      font-size: 20px;
-      font-weight: 500;
-      letter-spacing: 0;
-      line-height: 1.35;
-    }
-
-    .preview-pending-progress {
-      width: 360px;
-      height: 6px;
-      margin-top: 32px;
+      font-size: 42px;
+      line-height: 56px;
+      text-align: left;
+      white-space: nowrap;
       overflow: hidden;
-      border-radius: 999px;
-      background: #ece7f4;
     }
 
-    .preview-pending-progress span {
-      display: block;
-      width: 100%;
-      height: 100%;
-      transform-origin: left center;
-      border-radius: inherit;
-      background: linear-gradient(90deg, #6e63ff, #a98bff);
+    .time {
+      position: absolute;
+      left: 844px;
+      top: 40px;
+      width: 68px;
+      height: 56px;
+      color: #000000;
+      font-weight: 400;
+      font-size: 36px;
+      line-height: 56px;
+      text-align: right;
+      opacity: 0.4;
+    }
+
+    .subtitle {
+      position: absolute;
+      left: 192px;
+      top: 96px;
+      width: 728px;
+      height: 56px;
+      color: #000000;
+      font-weight: 400;
+      font-size: 42px;
+      line-height: 56px;
+      text-align: left;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    .word-wrapper {
+      display: inline-block;
+      overflow: hidden;
+      vertical-align: top;
+      height: 56px;
+      margin-right: 12px; /* space between words */
+    }
+
+    /* Remove margin-right for the last word */
+    .word-wrapper:last-child {
+      margin-right: 0;
+    }
+
+    .title-word, .subtitle-word {
+      display: inline-block;
+      opacity: 0; /* Animated */
+      transform: translateY(50px); /* Animated */
+      will-change: transform, opacity;
     }
   </style>
 </head>
@@ -161,30 +163,44 @@
     id="stage"
     data-composition-id="Main"
     data-start="0"
-    data-duration="11.667"
-    data-width="1920"
-    data-height="1080"
+    data-duration="3"
+    data-width="1080"
+    data-height="312"
     data-motionabl-fps="30"
   >
     <div
-      id="preview-pending"
-      class="clip preview-pending-motion"
+      id="notification-clip"
+      class="clip"
       data-start="0"
-      data-duration="11.667"
+      data-duration="3"
       data-track-index="0"
     >
-      <div class="preview-pending-grid" aria-hidden="true"></div>
-      <div class="preview-pending-content">
-        <div class="preview-pending-status">
-          <span class="preview-pending-dot"></span>
-          <span>Preview</span>
-        </div>
-        <div class="preview-pending-title">Preparing preview</div>
-        <div class="preview-pending-subtitle">
-          Generated motion will appear here when ready.
-        </div>
-        <div class="preview-pending-progress" aria-hidden="true">
-          <span></span>
+      <div class="notification-group">
+        <!-- Notification background bubble -->
+        <div class="notification-background"></div>
+
+        <!-- iMessage Logo Icon -->
+        <img
+          class="icon"
+          src="https://pub-e3bfc0083b0644b296a7080b21024c5f.r2.dev/uploads/1780410541547_o8es724pwk_3d06f50f_4715_4475_a42c_e4cddc5bdf1d.svg"
+          alt="iMessage Icon"
+        />
+
+        <!-- Text layer content -->
+        <div class="text-container">
+          <div class="title">
+            <span class="word-wrapper"><span class="title-word">Jitter</span></span>
+            <span class="word-wrapper"><span class="title-word">Team</span></span>
+          </div>
+          <div class="time">now</div>
+          <div class="subtitle">
+            <span class="word-wrapper"><span class="subtitle-word">Remix</span></span>
+            <span class="word-wrapper"><span class="subtitle-word">and</span></span>
+            <span class="word-wrapper"><span class="subtitle-word">make</span></span>
+            <span class="word-wrapper"><span class="subtitle-word">it</span></span>
+            <span class="word-wrapper"><span class="subtitle-word">shine!</span></span>
+            <span class="word-wrapper"><span class="subtitle-word">☀️</span></span>
+          </div>
         </div>
       </div>
     </div>
@@ -194,43 +210,77 @@
   <script>
     window.__timelines = window.__timelines || {};
 
-    const timeline = gsap.timeline({ paused: true });
-    timeline.from(".preview-pending-content", {
-      opacity: 0,
-      y: 34,
-      scale: 0.98,
-      duration: 0.8,
-      ease: "power4.out",
-    }, 0);
-    timeline.from(".preview-pending-grid", {
-      opacity: 0,
-      scale: 1.08,
-      duration: 1.1,
-      ease: "power3.out",
-    }, 0);
-    timeline.to(".preview-pending-dot", {
-      opacity: 0.35,
-      duration: 0.9,
-      yoyo: true,
-      repeat: 10,
-      ease: "sine.inOut",
-    }, 0.25);
-    timeline.fromTo(".preview-pending-progress span", {
-      scaleX: 0.08,
-    }, {
-      scaleX: 0.82,
-      duration: 5.8,
-      yoyo: true,
-      repeat: 1,
-      ease: "power2.inOut",
-    }, 0.4);
-    timeline.to(".preview-pending-grid", {
-      opacity: 0.28,
-      duration: 0.001,
-      ease: "power1.out",
-    }, 11.667);
+    const tl = gsap.timeline({ paused: true });
 
-    window.__timelines.Main = timeline;
+    // 1. Group entry at 0.0s (0.0s to 0.4s)
+    // Scale from 0.6 to 1 with back.out ease, duration 0.4s (12 frames)
+    tl.fromTo(".notification-group", {
+      scale: 0.6,
+      transformOrigin: "center center"
+    }, {
+      scale: 1,
+      duration: 0.4,
+      ease: "back.out(1.5)"
+    }, 0);
+
+    // Group opacity from 0 to 1 with linear ease, duration 0.15s (4.5 frames)
+    tl.fromTo(".notification-group", {
+      opacity: 0
+    }, {
+      opacity: 1,
+      duration: 0.15,
+      ease: "none"
+    }, 0);
+
+    // 2. Icon scale-in at 0.1s (0.1s to 0.4s)
+    // growIn: scale from 0.5 to 1 with back.out, duration 0.3s (9 frames)
+    tl.fromTo(".icon", {
+      scale: 0.5,
+      transformOrigin: "center center"
+    }, {
+      scale: 1,
+      duration: 0.3,
+      ease: "back.out(1.5)"
+    }, 0.1);
+
+    // 3. Title slide and fade at 0.2s (0.2s to 0.45s)
+    // slideAndFade: y from 50px to 0, opacity from 0 to 1
+    // Stagger words by 0.05s, each word duration 0.2s (6 frames)
+    tl.fromTo(".title-word", {
+      y: 50,
+      opacity: 0
+    }, {
+      y: 0,
+      opacity: 1,
+      duration: 0.2,
+      stagger: 0.05,
+      ease: "power2.out"
+    }, 0.2);
+
+    // 4. Subtitle slide and fade at 0.5s (0.5s to 0.95s)
+    // slideAndFade: y from 50px to 0, opacity from 0 to 1
+    // Stagger words by 0.05s, each word duration 0.2s (6 frames)
+    tl.fromTo(".subtitle-word", {
+      y: 50,
+      opacity: 0
+    }, {
+      y: 0,
+      opacity: 1,
+      duration: 0.2,
+      stagger: 0.05,
+      ease: "power2.out"
+    }, 0.5);
+
+    // 5. Shrink Out exit at 2.8s (2.8s to 3.0s)
+    // Scale to 0.8, Opacity to 0 with power2.in ease, duration 0.2s (6 frames)
+    tl.to(".notification-group", {
+      scale: 0.8,
+      opacity: 0,
+      duration: 0.2,
+      ease: "power2.in"
+    }, 2.8);
+
+    window.__timelines.Main = tl;
   </script>
 </body>
 </html>
