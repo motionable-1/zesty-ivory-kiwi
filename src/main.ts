@@ -195,6 +195,9 @@ const startPlayerStateSync = () => {
 const initialFrame = getFrameFromHash();
 const captureMode = new URLSearchParams(window.location.search).has("capture");
 
+const searchParams = new URLSearchParams(window.location.search);
+const iframeSrc = `/composition/index.html${searchParams.toString() ? '?' + searchParams.toString() : ''}`;
+
 root.innerHTML = `
   <main
     class="app-shell"
@@ -206,7 +209,7 @@ root.innerHTML = `
       <div class="app-player-shell" data-motionabl-frame="true">
         <div class="app-player-gloss"></div>
         <hyperframes-player
-          src="/composition/index.html"
+          src="${iframeSrc}"
           width="1920"
           height="1080"
           muted

@@ -188,19 +188,9 @@
 
         <!-- Text layer content -->
         <div class="text-container">
-          <div class="title">
-            <span class="word-wrapper"><span class="title-word">Jitter</span></span>
-            <span class="word-wrapper"><span class="title-word">Team</span></span>
-          </div>
+          <div class="title" id="title-text">Motionabl</div>
           <div class="time">now</div>
-          <div class="subtitle">
-            <span class="word-wrapper"><span class="subtitle-word">Remix</span></span>
-            <span class="word-wrapper"><span class="subtitle-word">and</span></span>
-            <span class="word-wrapper"><span class="subtitle-word">make</span></span>
-            <span class="word-wrapper"><span class="subtitle-word">it</span></span>
-            <span class="word-wrapper"><span class="subtitle-word">shine!</span></span>
-            <span class="word-wrapper"><span class="subtitle-word">☀️</span></span>
-          </div>
+          <div class="subtitle" id="subtitle-text">Your cinematic edit is complete! 🚀</div>
         </div>
       </div>
     </div>
@@ -209,6 +199,33 @@
   <script src="./vendor/gsap.min.js"></script>
   <script>
     window.__timelines = window.__timelines || {};
+
+    // Dynamically split text content into staggerable word blocks.
+    // Supports custom messages via HTML edit or URL query parameters (?title=...&subtitle=...)
+    function splitTextIntoWords(elementId, wordClass, queryParamName) {
+      const element = document.getElementById(elementId);
+      if (!element) return;
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlText = urlParams.get(queryParamName);
+      const text = (urlText ? decodeURIComponent(urlText) : element.textContent).trim();
+      
+      const words = text.split(/\s+/);
+      element.innerHTML = '';
+      words.forEach(word => {
+        const wrapper = document.createElement('span');
+        wrapper.className = 'word-wrapper';
+        const span = document.createElement('span');
+        span.className = wordClass;
+        span.textContent = word;
+        wrapper.appendChild(span);
+        element.appendChild(wrapper);
+      });
+    }
+
+    // Split text fields into individually animatable elements
+    splitTextIntoWords('title-text', 'title-word', 'title');
+    splitTextIntoWords('subtitle-text', 'subtitle-word', 'subtitle');
 
     const tl = gsap.timeline({ paused: true });
 
@@ -271,14 +288,14 @@
       ease: "power2.out"
     }, 0.5);
 
-    // 5. Shrink Out exit at 2.8s (2.8s to 3.0s)
+    // 5. Shrink Out exit at 2.7s (2.7s to 2.9s)
     // Scale to 0.8, Opacity to 0 with power2.in ease, duration 0.2s (6 frames)
     tl.to(".notification-group", {
       scale: 0.8,
       opacity: 0,
       duration: 0.2,
       ease: "power2.in"
-    }, 2.8);
+    }, 2.7);
 
     window.__timelines.Main = tl;
   </script>
